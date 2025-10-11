@@ -161,6 +161,40 @@ var _ = Describe("Status Resync After Restart", Ordered, Label("e2e-tests-status
 		})
 
 		AfterAll(func() {
+			By("Startup the maestro server if its shutdown", func() {
+				deploy, err := serverTestOpts.kubeClientSet.AppsV1().Deployments(serverTestOpts.serverNamespace).Get(ctx, "maestro", metav1.GetOptions{})
+				Expect(err).ShouldNot(HaveOccurred())
+				if *deploy.Spec.Replicas == 0 {
+					deploy, err := serverTestOpts.kubeClientSet.AppsV1().Deployments(serverTestOpts.serverNamespace).Patch(ctx, "maestro", types.MergePatchType, fmt.Appendf(nil, `{"spec":{"replicas":%d}}`, maestroServerReplicas), metav1.PatchOptions{
+						FieldManager: "serverTestOpts.kubeClientSet",
+					})
+					Expect(err).ShouldNot(HaveOccurred())
+					Expect(*deploy.Spec.Replicas).To(Equal(int32(maestroServerReplicas)))
+
+					// ensure maestro server pod is up and running
+					Eventually(func() error {
+						pods, err := serverTestOpts.kubeClientSet.CoreV1().Pods(serverTestOpts.serverNamespace).List(ctx, metav1.ListOptions{
+							LabelSelector: "app=maestro",
+						})
+						if err != nil {
+							return err
+						}
+						if len(pods.Items) != maestroServerReplicas {
+							return fmt.Errorf("unexpected maestro server pod count, expected %d, got %d", maestroServerReplicas, len(pods.Items))
+						}
+						for _, pod := range pods.Items {
+							if pod.Status.Phase != "Running" {
+								return fmt.Errorf("maestro server pod not in running state")
+							}
+							if pod.Status.ContainerStatuses[0].State.Running == nil {
+								return fmt.Errorf("maestro server container not in running state")
+							}
+						}
+						return nil
+					}, 1*time.Minute, 2*time.Second).ShouldNot(HaveOccurred())
+				}
+			})
+
 			By("delete the resource with source work client")
 			// note: wait some time to ensure source work client is connected to the restarted maestro server
 			Eventually(func() error {
