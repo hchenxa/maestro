@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Deployment Monitor Hook Configuration
+#
+# Copy this file to config.sh and set your values:
+#   cp config.sh.example config.sh
+#
+# Note: config.sh is gitignored to keep your webhook URL secure
+
+# Slack Webhook URL for deployment notifications
+# Get this from: https://api.slack.com/messaging/webhooks
+# Example: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+SLACK_WEBHOOK_URL=""
+
+# Optional: Customize notification behavior
+# NOTIFY_ON_START=false
+# NOTIFY_ON_PROGRESS=false
+# NOTIFY_ON_COMPLETE=true
+# NOTIFY_ON_FAILURE=true
