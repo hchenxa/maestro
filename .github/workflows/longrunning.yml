@@ -83,7 +83,7 @@ jobs:
           generate_in_cluster_kube() {
             kubeconfig=$1
             type=$2
-            kubectl --kubeconfig "$kubeconfig" -n default create serviceaccount e2e-test-admin
+            kubectl --kubeconfig "$kubeconfig" -n default create serviceaccount e2e-test-admin || true
 
             cat << -EOF | kubectl --kubeconfig "$kubeconfig" apply -f -
           apiVersion: rbac.authorization.k8s.io/v1

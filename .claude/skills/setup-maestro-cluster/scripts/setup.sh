@@ -123,12 +123,10 @@ else
     export PERSIST="${PERSIST:-true}"
 fi
 export GITHUB_ACTIONS=true
-export GOTOOLCHAIN=go1.24.4
 
 echo "USER=$USER"
 echo "PERSIST=$PERSIST"
 echo "GITHUB_ACTIONS=$GITHUB_ACTIONS"
-echo "GOTOOLCHAIN=$GOTOOLCHAIN"
 
 echo ""
 echo "Starting personal-dev-env deployment..."
